@@ -1,6 +1,6 @@
 # 🌌 Simulador de Galaxia Rotatoria
 
-![Demo Galaxia](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjd6Y2RjYjF0NnB3dW0yN2V6OGh1Y3V5Y2N6ZGxqY2V5bHh5bWZ5NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26tn33aiTi1jkl6H6/giphy.gif)
+![Demo Galaxia](pantallazoGalaxiaRotatoria.jpg)
 
 Simulación interactiva de una galaxia espiral con movimiento orbital 3D, efecto parallax y generación procedural de estrellas.
 
