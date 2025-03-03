@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Galaxia Rotatoria</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+
+        #galaxy {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            transform-style: preserve-3d;
+        }
+
+        .core {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, #ffd700, #ff4500);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 50px 10px rgba(255, 215, 0, 0.4);
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease-out;
+        }
+
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            color: white;
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div id="galaxy">
+        <div class="core"></div>
+    </div>
+    
+    <div id="controls">
+        <div class="control-group">
+            <label>Velocidad:</label>
+            <input type="range" id="speed" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        <div class="control-group">
+            <label>Estrellas:</label>
+            <input type="range" id="stars" min="50" max="500" value="200">
+        </div>
+    </div>
+
+    <script>
+        class Galaxy {
+            constructor() {
+                this.galaxy = document.getElementById('galaxy');
+                this.stars = [];
+                this.speed = 1;
+                this.baseSize = Math.min(window.innerWidth, window.innerHeight);
+                this.generateStars(200);
+                this.animate();
+                
+                // Controles
+                document.getElementById('speed').addEventListener('input', (e) => {
+                    this.speed = e.target.value;
+                });
+                
+                document.getElementById('stars').addEventListener('input', (e) => {
+                    this.generateStars(e.target.value);
+                });
+            }
+
+            generateStars(quantity) {
+                // Limpiar estrellas existentes
+                this.stars.forEach(star => star.remove());
+                this.stars = [];
+                
+                for(let i = 0; i < quantity; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    
+                    // Posición aleatoria en 3D
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.pow(Math.random(), 2) * (this.baseSize * 0.4);
+                    const layer = Math.floor(distance / (this.baseSize * 0.1));
+                    const size = (0.5 + (1 - distance/(this.baseSize * 0.4))) * 3;
+                    
+                    // Propiedades personalizadas
+                    star._props = {
+                        angle: angle,
+                        distance: distance,
+                        layer: layer,
+                        speed: 0.002 + (0.001 * (1 - distance/(this.baseSize * 0.4)))
+                    };
+                    
+                    star.style.width = star.style.height = `${size}px`;
+                    star.style.backgroundColor = `hsl(${Math.random() * 60 + 200}, 70%, ${70 - (layer * 15)}%)`;
+                    
+                    this.galaxy.appendChild(star);
+                    this.stars.push(star);
+                }
+            }
+
+            updatePositions() {
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                
+                this.stars.forEach(star => {
+                    star._props.angle += star._props.speed * this.speed;
+                    
+                    const x = Math.cos(star._props.angle) * star._props.distance;
+                    const y = Math.sin(star._props.angle) * star._props.distance;
+                    const z = star._props.distance * 0.5; // Efecto parallax
+                    
+                    // Aplicar transformación 3D
+                    star.style.transform = `
+                        translate3d(
+                            ${centerX + x}px, 
+                            ${centerY + y}px, 
+                            ${-z}px
+                        )
+                        scale(${1 + (z / 500)})
+                    `;
+                    
+                    // Efecto de brillo
+                    star.style.opacity = 0.5 + (Math.sin(star._props.angle * 10) * 0.3);
+                });
+            }
+
+            animate() {
+                this.updatePositions();
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        // Inicializar galaxia
+        const galaxy = new Galaxy();
+
+        // Ajustar al redimensionar
+        window.addEventListener('resize', () => {
+            galaxy.baseSize = Math.min(window.innerWidth, window.innerHeight);
+            galaxy.generateStars(document.getElementById('stars').value);
+        });
+    </script>
+</body>
+</html>
